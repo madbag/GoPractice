@@ -7,7 +7,10 @@ import (
 	"net/http"
 )
 
-const apiURL = "https://pokeapi.co/api/v2/pokemon/"
+const (
+	apiURL          = "https://pokeapi.co/api/v2/pokemon/"
+	totalPokemonURL = "https://pokeapi.co/api/v2/pokemon/"
+)
 
 type Pokemon struct {
 	Name   string `json:"name"`
@@ -16,6 +19,13 @@ type Pokemon struct {
 }
 
 type ListOfPokemon struct {
+	Results []struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	} `json:"results"`
+}
+
+type PokemonList struct {
 	Results []struct {
 		Name string `json:"name"`
 		URL  string `json:"url"`
@@ -59,9 +69,9 @@ func getFirstTenPokemon() ([]*Pokemon, error) {
 		return nil, fmt.Errorf("error: %s", resp.Status)
 	}
 
-	var listOfPokemon ListOfPokemon 
-		if err:= json.NewDecoder(resp.Body).Decode(&listOfPokemon); err != nil {
-			return nil, fmt.Errorf("failed to decode pokemon list: %v", err)
+	var listOfPokemon ListOfPokemon
+	if err := json.NewDecoder(resp.Body).Decode(&listOfPokemon); err != nil {
+		return nil, fmt.Errorf("failed to decode pokemon list: %v", err)
 	}
 
 	var pokemons []*Pokemon
@@ -77,8 +87,60 @@ func getFirstTenPokemon() ([]*Pokemon, error) {
 	return pokemons, nil
 }
 
+// Get total Pokemon
+func getTotalPokemonCount() (int, error) {
+	resp, err := http.Get(totalPokemonURL)
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
 
-//last 10 pokemon 
+	var result struct {
+		Count int `json:"count"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return 0, fmt.Errorf("failed to decode pokemon count: %v", err)
+	}
+
+	return result.Count, nil
+}
+
+func getLastTenPokemon() ([]Pokemon, error) {
+	count, err := getTotalPokemonCount()
+	if err != nil {
+		return nil, err
+	}
+
+	var pokemons []Pokemon
+	limit := 10
+	offset := count - limit
+	url := fmt.Sprintf("%s?limit=%d&offset=%d", apiURL, limit, offset)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	var listOfPokemon ListOfPokemon
+	if err := json.NewDecoder(resp.Body).Decode(&listOfPokemon); err != nil {
+		return nil, fmt.Errorf("failed to decode pokemon list:%v", err)
+	}
+
+	for _, p := range listOfPokemon.Results {
+		pokemon, err := getPokemon(p.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		pokemons = append(pokemons, *pokemon)
+	}
+
+	return pokemons, nil
+}
+
 func main() {
 	pokemonName := "pikachu"
 	pokemon, err := getPokemon(pokemonName)
@@ -89,10 +151,17 @@ func main() {
 
 	pokemons, err := getFirstTenPokemon()
 	if err != nil {
-	    log.Fatalf("Error fetching the first 10 pokemon: %v", err)
+		log.Fatalf("Error fetching the first 10 pokemon: %v", err)
+	}
+	for _, pokemon := range pokemons {
+		fmt.Printf("Result 2 = Name: %s, ID: %d, Height: %d\n", pokemon.Name, pokemon.ID, pokemon.Height)
 	}
 
-	for _, pokemon:= range pokemons {
-		fmt.Printf("Result 2 = Name: %s, ID: %d, Height: %d\n", pokemon.Name, pokemon.ID, pokemon.Height)
+	morePokemons, err := getLastTenPokemon()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, pokemon := range morePokemons {
+		fmt.Printf("Result 3 = Name:%s, ID:%d, Height:%d\n", pokemon.Name, pokemon.ID, pokemon.Height)
 	}
 }

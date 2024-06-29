@@ -32,6 +32,7 @@ type PokemonList struct {
 	} `json:"results"`
 }
 
+
 func getPokemon(name string) (*Pokemon, error) {
 	//response & error
 	resp, err := http.Get(apiURL + name)
@@ -39,7 +40,7 @@ func getPokemon(name string) (*Pokemon, error) {
 		return nil, err
 	}
 
-	//Delay the execution of a statement until the end of a function
+	//Delay the execution of a statement until the end of the above function
 	defer resp.Body.Close()
 
 	//if status is not OK
@@ -106,6 +107,7 @@ func getTotalPokemonCount() (int, error) {
 	return result.Count, nil
 }
 
+// get last 10 pokemon
 func getLastTenPokemon() ([]Pokemon, error) {
 	count, err := getTotalPokemonCount()
 	if err != nil {

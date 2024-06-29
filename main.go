@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"math/rand"
+	"time"
 )
 
 const (
@@ -143,6 +145,55 @@ func getLastTenPokemon() ([]Pokemon, error) {
 	return pokemons, nil
 }
 
+//get random pokemon
+func getRandomPokemon(){
+	rand.Seed(time.Now().UnixNano())
+
+	randomID := rand.Intn(898) + 1
+
+	url := fmt.Sprintf("http://pokeapi.co/api/v2/pokemon/%d", randomID)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	var pokemon Pokemon
+	if err := json.NewDecoder(resp.Body).Decode(&pokemon); err != nil {
+	    log.Fatalf("Error decoding data: %v", err)
+	}
+
+	fmt.Printf("Name: %s,\n ID:%d\n Height:%d\n", pokemon.Name, pokemon.ID, pokemon.Height)
+}
+
+//get 10 random pokemon
+func getTenRandomPokemon()([]Pokemon, error){
+	var pokemons []Pokemon
+
+	for i := 0; i < 10; i++ {
+		randomID := rand.Intn(898) + 1
+		url := fmt.Sprintf("http://pokeapi.co/api/v2/pokemon/%d", randomID)
+
+		resp, err := http.Get(url)
+		if err != nil {
+		    log.Fatal(err)
+		}
+
+		defer resp.Body.Close()
+
+		var pokemon Pokemon
+		if err := json.NewDecoder(resp.Body).Decode(&pokemon); err != nil {
+		    log.Fatalf("Error decoding data: %v", err)				
+		}
+		pokemons = append(pokemons, pokemon)
+
+	}
+
+	return pokemons, nil
+}
+
 func main() {
 	pokemonName := "pikachu"
 	pokemon, err := getPokemon(pokemonName)
@@ -165,5 +216,15 @@ func main() {
 	}
 	for _, pokemon := range morePokemons {
 		fmt.Printf("Result 3 = Name:%s, ID:%d, Height:%d\n", pokemon.Name, pokemon.ID, pokemon.Height)
+	}
+
+	getRandomPokemon()
+
+	tenRandomPokemons, err := getTenRandomPokemon()
+	if err != nil {
+	    log.Fatalf("Error getting random pokemon: %v", err)
+	}
+	for _, pokemon := range tenRandomPokemons {
+		fmt.Printf("Name: %s, ID: %d, Height: %d\n", pokemon.Name, pokemon.ID, pokemon.Height)
 	}
 }

@@ -56,7 +56,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
     result := <-ch // Wait for the result from the goroutine
 
     response := Response{Message: result}
-    w.Header().Set("Content-Type", "application/json")
+    w.Header().Set("Content-Type", "application/json")// Set the response header
     json.NewEncoder(w).Encode(response) // Send JSON response
 }
 

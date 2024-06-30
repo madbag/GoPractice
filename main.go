@@ -9,10 +9,7 @@ import (
 	"time"
 )
 
-const (
-	apiURL          = "https://pokeapi.co/api/v2/pokemon/"
-	totalPokemonURL = "https://pokeapi.co/api/v2/pokemon/"
-)
+const apiURL = "https://pokeapi.co/api/v2/pokemon/"
 
 type Pokemon struct {
 	Name   string `json:"name"`
@@ -27,12 +24,12 @@ type ListOfPokemon struct {
 	} `json:"results"`
 }
 
-type PokemonList struct {
-	Results []struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	} `json:"results"`
-}
+// type PokemonList struct {
+// 	Results []struct {
+// 		Name string `json:"name"`
+// 		URL  string `json:"url"`
+// 	} `json:"results"`
+// }
 
 // type PokemonType struct {
 // 	Results []struct {
@@ -108,7 +105,7 @@ func getFirstTenPokemon() ([]*Pokemon, error) {
 
 // Get total Pokemon
 func getTotalPokemonCount() (int, error) {
-	resp, err := http.Get(totalPokemonURL)
+	resp, err := http.Get(apiURL)
 	if err != nil {
 		return 0, err
 	}
@@ -264,12 +261,12 @@ func main() {
 
 		fmt.Fprintf(w, "####################\n")
 
-		randomPokemon, err:= getRandomPokemon()
+		randomPokemon, err := getRandomPokemon()
 		if err != nil {
-			log.Fatal(err) 
+			log.Fatal(err)
 		}
 		// for _, pokemon := range randomPokemon {
-			fmt.Fprintf(w, "Result 4 = Name:%s, ID:%d, Height:%d\n", randomPokemon.Name, randomPokemon.ID, randomPokemon.Height)
+		fmt.Fprintf(w, "Result 4 = Name:%s, ID:%d, Height:%d\n", randomPokemon.Name, randomPokemon.ID, randomPokemon.Height)
 		// }
 
 		fmt.Fprintf(w, "####################\n")

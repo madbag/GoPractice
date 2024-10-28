@@ -7,4 +7,4 @@ Welcome to **Go Practice**! This repository contains exercises and mini-projects
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/madbag/go-practice.git
-   cd go-practice
+   

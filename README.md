@@ -1,6 +1,6 @@
 # Go Practice
 
-Welcome to **Go Practice**! This repository contains exercises and mini-projects to help you learn and improve your Go (Golang) skills.
+Welcome to **Go Practice**! This repository contains exercises and mini-projects to help me learn and improve my Go (Golang) skills.
 
 ## Getting Started
 
